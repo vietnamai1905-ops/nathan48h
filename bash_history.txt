@@ -1,0 +1,4 @@
+cd ~/GioNathan
+unzip GioNathan_Web_Internet_Ready.zip
+pip3 install --user -r requirements.txt
+exit
