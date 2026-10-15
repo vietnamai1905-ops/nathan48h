@@ -37,13 +37,52 @@ body{background:#14222b}
 .workspace .notice{font-size:11px;opacity:.72}
 @media(max-width:840px){.brand{flex-wrap:wrap;gap:12px}.mainnav{width:100%;justify-content:space-between}.mainnav button{flex:1;white-space:nowrap;font-size:12px;padding:9px 5px}.categoriesOverview{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{min-height:220px}}
 @media(max-width:520px){.shell{padding:8px 9px 65px}.brand{padding:9px}.brandname{font-size:16px}.mainnav button{font-size:10px;min-height:36px}.mainnav{gap:4px}.hero{padding:16px 5px;min-height:200px}.hero .clock{font-size:clamp(42px,10vw,57px)}.catCard .emoji{font-size:18px}.catCard .name{font-size:11px}.workspace{padding:12px 8px}.tableHead,.entry{grid-template-columns:4px 50px 100px minmax(0,1fr);gap:5px}.datebar{flex-wrap:nowrap;margin-bottom:11px}.datebar input{min-width:0;width:100px}}
+</style><style id="nathan-reference-fix">
+/* Exact spatial hierarchy of reference: top bar / clock / date / nine cards / journal */
+.shell{max-width:1220px;margin:auto;padding:12px 16px 55px}
+.brand{min-height:65px;margin-bottom:15px;padding:10px 20px;background:rgba(20,37,54,.49);border:1px solid #ffffff33;border-radius:17px}
+.brandmark{min-width:200px}.emblem{border:0;background:transparent;font-size:25px;width:32px;height:32px}
+.brandname{font-size:21px;font-weight:750;letter-spacing:.06em}
+.brandnote{font-size:11px;letter-spacing:0;margin-top:2px}
+.mainnav{flex:1;justify-content:center;gap:4px;max-width:550px}
+.mainnav button{font-size:13px;min-height:47px;background:transparent;border:1px solid transparent;display:flex;align-items:center;justify-content:center;border-radius:11px}
+.mainnav button.active{background:#15293cad;border-color:#dbb56b;color:#efcd81}
+.hero{max-width:674px;width:100%;min-height:196px;margin:17px auto 19px;border-radius:15px;padding:15px 18px;background:rgba(15,31,47,.57);border:1px solid #ffffff45}
+.hero .eyebrow{font-size:12px;letter-spacing:.22em;color:#f2eeee}
+.hero .clock{font-size:clamp(52px,7vw,73px);font-weight:750;letter-spacing:-.035em;color:#f5cb73;line-height:1.1;margin-top:10px}
+.hero .normal{margin-top:2px;font-size:16px}
+.hero .rule{margin-top:11px;padding:7px 14px;border:1px solid #dfb961;border-radius:24px;background:#12263888;color:#f5cd76}
+.datebar{width:100%;max-width:880px;margin:0 auto 15px;display:flex;justify-content:center;gap:9px}
+.datebar input{width:auto;flex:1;max-width:610px;background:rgba(18,40,57,.70);min-height:47px;border:1px solid #ffffff45;font-size:16px}
+.datebar button{min-height:47px;background:#132b40bf}
+.datebar button.gold{background:#493e32b8;border-color:#d6ac60;color:#fff}
+.categories-band{max-width:955px;margin:0 auto 13px;padding:0}
+.categoriesOverview{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:0;background:rgba(14,30,45,.69);border-radius:14px;border:1px solid #ffffff40;overflow:hidden;backdrop-filter:blur(13px);box-shadow:0 12px 35px #0005}
+.catCard{border:0;border-right:1px solid #ffffff2b;border-radius:0;background:transparent;padding:12px 4px 10px;min-height:101px}
+.catCard:last-child{border-right:0}
+.catCard .emoji{font-size:19px;margin:0 0 3px}.catCard .name{font-size:11px}.catCard .amount{font-size:12px;margin-top:7px}
+.catCard .portion{font-size:10px;margin-top:0}.catCard .miniBar{margin:7px 8px 0}
+.workspace{max-width:955px;margin:auto;padding:14px 15px;background:rgba(12,28,42,.69);border-radius:15px;border:1px solid #ffffff2f}
+.heading{padding:0 0 8px;align-items:center}
+.heading h2{font-size:20px}
+.heading p{font-size:11px;color:#e4e7e7;margin:3px 0 0}
+.heading .buttons{margin:0;gap:8px}
+.heading .buttons button{padding:11px 16px;min-width:0}
+.heading .buttons .gold{background:#ebbb5f;color:#1d252b}
+.tip{display:none}
+.tableHead{grid-template-columns:5px 110px 150px minmax(0,1fr);gap:12px;padding:9px 10px 7px 12px}
+.entry{grid-template-columns:5px 110px 150px minmax(0,1fr);min-height:42px;border-radius:7px;padding:3px 10px 3px 12px;margin-bottom:3px}
+.nh{font-size:14px}.qt{font-size:12px}.entry .category{min-height:34px;padding:6px 12px;font-size:13px;border-radius:9px}
+.footer{margin-top:10px}
+@media(max-width:750px){.brand{padding:9px;gap:4px}.brandmark{min-width:0}.mainnav{max-width:none}.categoriesOverview{grid-template-columns:repeat(3,1fr);gap:1px}.catCard{min-height:90px}.catCard:nth-child(3n){border-right:0}.hero{min-height:190px}.heading{gap:9px}.heading .buttons{width:100%;display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.shell{padding:8px 8px 50px}.brand{margin-bottom:10px}.brandname{font-size:15px}.brandnote{font-size:9px}.mainnav{width:100%;flex-wrap:nowrap;gap:0}.mainnav button{font-size:10px;padding:8px 3px;min-height:35px}.hero{min-height:175px;padding:16px 5px}.hero .clock{font-size:clamp(45px,10vw,57px)}.datebar input{min-width:0;font-size:12px}.datebar button{padding:8px;min-width:35px;font-size:11px}.workspace{padding:10px 7px}.tableHead,.entry{grid-template-columns:4px 48px 97px minmax(0,1fr);gap:5px}.nh{font-size:12px}.qt{font-size:10px}.entry .category{font-size:12px;padding:7px 3px}.heading h2{font-size:18px}}
 </style></head><body>
 <div class="wallpaper" aria-hidden="true"></div><div class="shade"></div>
 <main class="shell"><header class="brand"><div class="brandmark"><div class="emblem">◷</div><div><div class="brandname">GIỜ NATHAN</div><div class="brandnote">Quản lý 48 giờ mỗi ngày · Sống chủ động hơn</div></div></div><nav class="mainnav" aria-label="Điều hướng"><button class="active" id="navHome">⌂ Hôm nay</button><button id="navDiary">▤ Nhật ký</button><button id="navStats">▥ Thống kê</button><button id="navData">⇩ Xuất/nhập</button></nav></header>
 <section class="hero"><div class="eyebrow">THỜI GIAN LÀ TÀI SẢN QUÝ GIÁ NHẤT</div><h1 class="title">Đồng hồ Nathan</h1><div class="clock" id="clock" aria-live="off">00:00:00</div><div class="normal" id="normal">Giờ quốc tế: 00:00:00</div><div class="rule">1 giờ Nathan = 30 phút quốc tế</div><div class="subline">Mỗi ngày, ta có 48 giờ để sống có chủ đích.</div></section>
 
-<div class="datebar"><button class="ctrl" id="prev" aria-label="Ngày trước">‹</button><input class="ctrl" type="date" id="date" aria-label="Chọn ngày"><button class="ctrl" id="next" aria-label="Ngày sau">›</button><button class="ctrl gold" id="today">Hôm nay</button></div><section id="diarySection" class="panel workspace"><div class="heading"><div><h2>Nhật ký 48 giờ</h2><p>Mỗi khung tương đương 30 phút thực tế</p></div><div class="buttons"><button class="ctrl gold" id="saveTop">▣ Lưu dữ liệu</button><button class="ctrl" id="statsTop">▥ Xem thống kê</button></div></div>
-<div id="categoriesOverview" class="categoriesOverview" aria-label="Thống kê hoạt động"></div><div class="tip"><span><span class="swatch"></span>Khung viền vàng là thời gian đang diễn ra</span><span>48 giờ Nathan = 24 giờ quốc tế</span></div>
+<div class="datebar"><button class="ctrl" id="prev" aria-label="Ngày trước">‹</button><input class="ctrl" type="date" id="date" aria-label="Chọn ngày"><button class="ctrl" id="next" aria-label="Ngày sau">›</button><button class="ctrl gold" id="today">Hôm nay</button></div><section id="overviewBand" class="categories-band"><div id="categoriesOverview" class="categoriesOverview" aria-label="Thống kê hoạt động"></div></section><section id="diarySection" class="panel workspace"><div class="heading"><div><h2>Nhật ký 48 giờ</h2><p>Mỗi khung tương đương 30 phút thực tế</p></div><div class="buttons"><button class="ctrl gold" id="saveTop">▣ Lưu dữ liệu</button><button class="ctrl" id="statsTop">▥ Xem thống kê</button></div></div>
+<div class="tip"><span><span class="swatch"></span>Khung viền vàng là thời gian đang diễn ra</span><span>48 giờ Nathan = 24 giờ quốc tế</span></div>
 <div class="tableHead"><div></div><div>GIỜ NATHAN</div><div>GIỜ QUỐC TẾ</div><div>HOẠT ĐỘNG</div></div><div id="timeline"></div>
 <div class="buttons"><button class="ctrl" id="summaryButton">◉ &nbsp; Xem tổng kết</button><button class="ctrl gold" id="save">✓ &nbsp; Lưu nhật ký</button></div><div role="status" class="status" id="status"></div>
 <div class="notice">Bản GitHub Pages hoạt động độc lập: dữ liệu được lưu trong trình duyệt hiện tại, không đồng bộ với website PythonAnywhere. Anh có thể xuất bản sao để tránh mất dữ liệu khi xóa dữ liệu trình duyệt.</div><div class="buttons"><button class="ctrl" id="export">↓ Xuất dữ liệu JSON</button><button class="ctrl" id="import">↑ Nhập dữ liệu JSON</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
