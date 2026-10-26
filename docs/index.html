@@ -208,7 +208,7 @@ if(done<24){$('coachTrend').textContent='Chưa có đủ dữ liệu cho phần 
 if(points.length){
 const avg=(field)=>points.reduce((sum,m)=>sum+m[field],0)/points.length;
 const delta=current.score-avg('score'),ld=current.learning-avg('learning');
-$('coachTrend').textContent='SO SÁNH 7 NGÀY TRƯỚC ('+points.length+' ngày ghi đủ 48 khung)\nĐiểm kỷ luật: '+current.score+'/100 so với trung bình '+avg('score').toFixed(1)+'/100 ('+(delta>=0?'+':'')+delta.toFixed(1)+' điểm).\nLãng phí: '+current.waste.toLocaleString('vi-VN')+'h so với '+avg('waste').toFixed(1)+'h ('+(wd>0?'+':'')+wd.toFixed(1)+'h).';
+$('coachTrend').textContent='SO SÁNH 7 NGÀY TRƯỚC ('+points.length+' ngày ghi đủ 48 khung)\nĐiểm kỷ luật: '+current.score+'/100 so với trung bình '+avg('score').toFixed(1)+'/100 ('+(delta>=0?'+':'')+delta.toFixed(1)+' điểm).\nHọc tập: '+current.learning.toLocaleString('vi-VN')+'h so với '+avg('learning').toFixed(1)+'h ('+(ld>0?'+':'')+ld.toFixed(1)+'h).';
 }else $('coachTrend').textContent='Chưa đủ dữ liệu 7 ngày trước (chỉ so sánh với những ngày đã ghi đủ 48 khung).';
 if(done===48){
 try{localStorage.setItem('nathan48-review-v1:'+day,JSON.stringify({source:v,score:current.score,report:$('coachResult').textContent,updatedAt:new Date().toISOString()}));$('coachSaved').textContent='✓ Đã lưu kết quả đánh giá ngày này trên trình duyệt.'}
