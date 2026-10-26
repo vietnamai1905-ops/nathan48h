@@ -120,7 +120,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 <div class="tip"><span><span class="swatch"></span>Khung viền vàng là thời gian đang diễn ra</span><span>48 giờ Nathan = 24 giờ quốc tế</span></div>
 <div id="rangePanel" style="padding:13px;margin:12px 0;background:#0b332bbc;border:1px solid #91b9a56b;border-radius:13px">
 <div style="font-weight:750;margin-bottom:8px">☑ Gán hoạt động cho cả khoảng thời gian</div>
-<div class="mini" style="margin-bottom:10px">Đánh dấu 2 ô ở hai khung đầu và cuối bên dưới. Ví dụ tích 00:00–00:30 và 05:00–05:30 sẽ chọn toàn bộ 00:00–05:30.</div>
+<div class="mini" style="margin-bottom:10px">Chạm trực tiếp vào GIỜ QUỐC TẾ của khung đầu và khung cuối bên dưới. Ví dụ chạm 00:00–00:30 và 05:00–05:30 để chọn toàn bộ 00:00–05:30.</div>
 <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
 <select id="rangeCategory" class="ctrl" aria-label="Hoạt động cho cả khoảng" style="flex:1;min-width:135px"></select>
 <button id="applyRange" type="button" class="ctrl gold">✓ Áp dụng khoảng</button>
@@ -143,24 +143,23 @@ const cats=['Chưa chọn','Công việc','Đọc sách','Thể thao','Gia đìn
 function load(d){try{const obj=JSON.parse(localStorage.getItem(key(d))||'[]');return Array.isArray(obj)?obj:[]}catch{return []}}
 function values(){return Array.from(document.querySelectorAll('#timeline select'),el=>el.value)}
 function stats(){const v=values(),done=v.filter(x=>x!=='Chưa chọn').length;if($('statDone'))$('statDone').textContent=done+'/48';if($('statTime'))$('statTime').textContent=(done/2).toLocaleString('vi-VN')+'h';return {v,done}}
-function render(){unsaved=false;$('status').textContent='';$('date').value=day;const saved=load(day),frag=document.createDocumentFragment(),now=new Date(),current=localDate(now)===day?now.getHours()*2+Math.floor(now.getMinutes()/30):-1;for(let i=0;i<48;i++){const r=document.createElement('div');r.className='entry'+(i===current?' now':'');const bar=document.createElement('div');bar.className='bar';const hour=document.createElement('div');hour.className='nh';const mark=document.createElement('input');mark.type='checkbox';mark.className='rangeMark';mark.dataset.index=String(i);mark.setAttribute('aria-label','Chọn mốc '+pad(Math.floor(i/2))+':'+(i%2?'30':'00'));mark.style.cssText='width:17px;height:17px;vertical-align:middle;margin:0 7px 0 0;accent-color:#f5ca7c';mark.addEventListener('change',onRangeMark);hour.append(mark,document.createTextNode(pad(i)+':00'));const international=document.createElement('div');international.className='qt';const a=i*30,b=a+30;international.textContent=pad(Math.floor(a/60))+':'+pad(a%60)+' – '+pad(Math.floor(b/60)%24)+':'+pad(b%60);const select=document.createElement('select');select.className='category';select.setAttribute('aria-label','Hoạt động giờ Nathan '+i);cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;select.append(o)});select.value=normalizeCategory(saved[i]);const recolor=()=>bar.style.background=colors[cats.indexOf(select.value)];select.addEventListener('change',()=>{recolor();unsaved=true;$('status').textContent='Có thay đổi chưa lưu';stats()});recolor();r.append(bar,hour,international,select);frag.append(r)}$('timeline').replaceChildren(frag);rangePoints=[];refreshRange();stats()}
+function render(){unsaved=false;$('status').textContent='';$('date').value=day;const saved=load(day),frag=document.createDocumentFragment(),now=new Date(),current=localDate(now)===day?now.getHours()*2+Math.floor(now.getMinutes()/30):-1;for(let i=0;i<48;i++){const r=document.createElement('div');r.className='entry'+(i===current?' now':'');const bar=document.createElement('div');bar.className='bar';const hour=document.createElement('div');hour.className='nh';hour.textContent=pad(i)+':00';const international=document.createElement('div');international.className='qt';const a=i*30,b=a+30;international.textContent=pad(Math.floor(a/60))+':'+pad(a%60)+' – '+pad(Math.floor(b/60)%24)+':'+pad(b%60);international.classList.add('rangeTime');international.dataset.index=String(i);international.tabIndex=0;international.setAttribute('role','button');international.setAttribute('aria-label','Chọn mốc thời gian '+international.textContent);international.title='Chạm để chọn mốc đầu hoặc cuối';international.addEventListener('click',()=>onRangeTime(i));international.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onRangeTime(i)}});const select=document.createElement('select');select.className='category';select.setAttribute('aria-label','Hoạt động giờ Nathan '+i);cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;select.append(o)});select.value=normalizeCategory(saved[i]);const recolor=()=>bar.style.background=colors[cats.indexOf(select.value)];select.addEventListener('change',()=>{recolor();unsaved=true;$('status').textContent='Có thay đổi chưa lưu';stats()});recolor();r.append(bar,hour,international,select);frag.append(r)}$('timeline').replaceChildren(frag);rangePoints=[];refreshRange();stats()}
 let rangePoints=[];
 function frameTime(i){const minutes=i*30;return pad(Math.floor(minutes/60))+':'+pad(minutes%60)}
 function refreshRange(){
-const marks=[...document.querySelectorAll('.rangeMark')];marks.forEach(m=>{m.checked=rangePoints.includes(Number(m.dataset.index));m.closest('.entry').style.outline=rangePoints.includes(Number(m.dataset.index))?'2px solid #e8bb65':''});
+document.querySelectorAll('.rangeTime').forEach(el=>{const i=Number(el.dataset.index),selected=rangePoints.includes(i);el.style.cssText=selected?'color:#ffe5a5;font-weight:800;background:#936c2459;border-radius:7px;cursor:pointer;padding:5px':'cursor:pointer;padding:5px;border-radius:7px';el.setAttribute('aria-pressed',String(selected));});
 if(!rangePoints.length){$('rangeInfo').textContent='Chưa chọn khung nào.';return}
 if(rangePoints.length===1){$('rangeInfo').textContent='Đã chọn mốc '+frameTime(rangePoints[0])+'. Chọn thêm khung cuối.';return}
 const lo=Math.min(...rangePoints),hi=Math.max(...rangePoints);
 $('rangeInfo').textContent='Đã chọn '+frameTime(lo)+'–'+frameTime(hi+1)+' ('+(hi-lo+1)+' khung, '+((hi-lo+1)/2).toLocaleString('vi-VN')+' giờ quốc tế).';
 }
-function onRangeMark(e){
-const i=Number(e.target.dataset.index);
-if(e.target.checked){if(rangePoints.length>=2)rangePoints=[];rangePoints.push(i)}
-else rangePoints=rangePoints.filter(x=>x!==i);
+function onRangeTime(i){
+if(rangePoints.includes(i))rangePoints=rangePoints.filter(x=>x!==i);
+else {if(rangePoints.length>=2)rangePoints=[];rangePoints.push(i)}
 refreshRange();
 }
 function applyRange(){
-if(rangePoints.length!==2){$('rangeInfo').textContent='Hãy đánh dấu đúng 2 mốc đầu và cuối trước khi áp dụng.';return}
+if(rangePoints.length!==2){$('rangeInfo').textContent='Hãy chạm vào 2 mốc giờ quốc tế đầu và cuối trước khi áp dụng.';return}
 const chosen=$('rangeCategory').value,lo=Math.min(...rangePoints),hi=Math.max(...rangePoints);
 const selections=[...document.querySelectorAll('#timeline select.category')];
 for(let i=lo;i<=hi;i++){selections[i].value=chosen;selections[i].dispatchEvent(new Event('change',{bubbles:true}))}
