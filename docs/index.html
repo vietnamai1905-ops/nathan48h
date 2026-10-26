@@ -126,8 +126,10 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 <section id="coachPanel" style="margin-top:20px;padding:16px;border:1px solid #86bb9b6b;border-radius:14px;background:#12392fc9">
 <h3 style="margin:0 0 9px">✦ Đánh giá kỷ luật mỗi ngày</h3>
 <div id="coachResult" style="white-space:pre-line;line-height:1.75"></div>
+<div id="coachTrend" style="white-space:pre-line;line-height:1.7;margin-top:12px;padding:12px;border-radius:10px;background:#0b2b23b8"></div>
+<p class="mini" id="coachSaved" style="margin:8px 0"></p>
 <div style="margin-top:14px;border-top:1px solid #ffffff33;padding-top:12px">
-<p class="mini" style="margin:0 0 8px">Tùy chọn: Gemini AI miễn phí (cần API key Google AI Studio). Key chỉ giữ trong bộ nhớ phiên mở trang, không lưu lên GitHub hay trình duyệt. Chỉ dùng key riêng, không chia sẻ.</p>
+<p class="mini" style="margin:0 0 8px">Tùy chọn: Gemini AI miễn phí (cần API key Google AI Studio). Key không được lưu. Đây là chế độ thử: yêu cầu gửi trực tiếp từ trình duyệt đến Google; chỉ dùng key có giới hạn API và hạn mức, không nhập key quan trọng. Để bảo mật tốt hơn cần proxy có xác thực.</p>
 <input id="geminiKey" type="password" autocomplete="off" placeholder="Dán Gemini API key (tùy chọn)" aria-label="Gemini API key" style="width:100%;padding:10px;margin-bottom:8px;background:#0c281f;color:white;border:1px solid #9bbca7;border-radius:9px">
 <button id="geminiReview" class="ctrl gold" type="button">✦ Nhờ Gemini nhận xét</button>
 <div id="geminiStatus" role="status" class="mini" style="margin-top:8px"></div>
@@ -143,26 +145,49 @@ function render(){unsaved=false;$('status').textContent='';$('date').value=day;c
 function save(){try{localStorage.setItem(key(day),JSON.stringify(values()));unsaved=false;$('status').textContent='✓ Đã lưu ngày '+day+' trên thiết bị này.'}catch{$('status').textContent='Không lưu được: bộ nhớ trình duyệt không khả dụng.'}}
 function switchDay(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||Number.isNaN(new Date(d+'T12:00:00').getTime()))return;if(unsaved)save();day=d;render()}
 function shift(n){const d=new Date(day+'T12:00:00');d.setDate(d.getDate()+n);switchDay(localDate(d))}
-function summary(){const {v,done}=stats(),box=$('sumrows');box.replaceChildren();const counts=cats.map((cat,i)=>({cat,n:v.filter(x=>x===cat).length,color:colors[i]})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);const colorsString=counts.reduce((acc,x)=>{const from=acc.total,to=from+x.n/48*100;acc.fragments.push(x.color+' '+from+'% '+to+'%');acc.total=to;return acc},{total:0,fragments:[]});$('donut').style.background='conic-gradient('+colorsString.fragments.join(',')+')';$('donut').dataset.label=Math.round(done/48*100)+'%';$('progressText').textContent='Đã phân loại '+done+' trên 48 giờ Nathan';$('progressFill').style.width=(done/48*100)+'%';counts.forEach(x=>{const el=document.createElement('div');el.className='sumrow';const name=document.createElement('div');name.className='sumname';const dot=document.createElement('span');dot.className='dot';dot.style.background=x.color;const span=document.createElement('span');span.textContent=x.cat;name.append(dot,span);const nh=document.createElement('b');nh.textContent=x.n+' giờ';const qt=document.createElement('b');qt.textContent=(x.n/2).toLocaleString('vi-VN')+' giờ';el.append(name,nh,qt);box.append(el)});$('sumDate').textContent='Ngày '+day.split('-').reverse().join('/');$('coachResult').textContent=assessment(v,done);$('geminiOutput').textContent='';$('geminiStatus').textContent='';$('modal').classList.add('open')}
-function assessment(v,done){
-const count=c=>v.filter(x=>x===c).length;const h=c=>count(c)/2;
-const waste=h('Lãng phí'),sleep=h('Ngủ'),movement=h('Thể thao'),study=h('Đọc sách'),family=h('Gia đình'),work=h('Công việc');
-if(done<24)return 'Đã ghi '+done+'/48 khung giờ. Hãy bổ sung nhật ký trước khi đánh giá để tránh kết luận sai từ dữ liệu thiếu.';
-const complete=done===48;
+function summary(){const {v,done}=stats(),box=$('sumrows');box.replaceChildren();const counts=cats.map((cat,i)=>({cat,n:v.filter(x=>x===cat).length,color:colors[i]})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);const colorsString=counts.reduce((acc,x)=>{const from=acc.total,to=from+x.n/48*100;acc.fragments.push(x.color+' '+from+'% '+to+'%');acc.total=to;return acc},{total:0,fragments:[]});$('donut').style.background='conic-gradient('+colorsString.fragments.join(',')+')';$('donut').dataset.label=Math.round(done/48*100)+'%';$('progressText').textContent='Đã phân loại '+done+' trên 48 giờ Nathan';$('progressFill').style.width=(done/48*100)+'%';counts.forEach(x=>{const el=document.createElement('div');el.className='sumrow';const name=document.createElement('div');name.className='sumname';const dot=document.createElement('span');dot.className='dot';dot.style.background=x.color;const span=document.createElement('span');span.textContent=x.cat;name.append(dot,span);const nh=document.createElement('b');nh.textContent=x.n+' giờ';const qt=document.createElement('b');qt.textContent=(x.n/2).toLocaleString('vi-VN')+' giờ';el.append(name,nh,qt);box.append(el)});$('sumDate').textContent='Ngày '+day.split('-').reverse().join('/');updateCoach(v,done);let prior=null;try{prior=JSON.parse(localStorage.getItem('nathan48-gemini-review-v1:'+day)||'null')}catch{}$('geminiOutput').textContent=prior&&JSON.stringify(prior.source)===JSON.stringify(v)?prior.text:'';$('geminiStatus').textContent=$('geminiOutput').textContent?'Đã tải nhận xét Gemini đã lưu cho dữ liệu ngày này.':'';$('modal').classList.add('open')}
+function dailyMetrics(v){
+const count=c=>v.filter(x=>x===c).length;const hours=c=>count(c)/2;
+const done=v.filter(x=>x!=='Chưa chọn').length;
+const waste=hours('Lãng phí'),sleep=hours('Ngủ'),movement=hours('Thể thao'),study=hours('Đọc sách'),family=hours('Gia đình');
 let score=65+Math.min(12,study*3)+Math.min(10,movement*5)+Math.min(8,family*1.5)-Math.min(35,waste*10);
 if(sleep>=7&&sleep<=9)score+=8;else if(sleep<6||sleep>10)score-=8;
-score=Math.max(0,Math.min(100,Math.round(score)));
+return {done,score:Math.max(0,Math.min(100,Math.round(score))),waste,sleep,movement,study,family,work:hours('Công việc')};
+}
+function assessment(v,done){
+const m=dailyMetrics(v);
+if(done<24)return 'Đã ghi '+done+'/48 khung giờ. Hãy bổ sung nhật ký trước khi đánh giá để tránh kết luận sai từ dữ liệu thiếu.';
 const notes=[];
-if(waste>1)notes.push('Thời gian lãng phí '+waste.toLocaleString('vi-VN')+' giờ quốc tế; hãy thử giảm 30 phút vào ngày mai.');
+if(m.waste>1)notes.push('Thời gian lãng phí '+m.waste.toLocaleString('vi-VN')+' giờ quốc tế; hãy thử giảm 30 phút vào ngày mai.');
 else notes.push('Anh kiểm soát thời gian lãng phí tương đối tốt.');
-if(sleep<7)notes.push('Ngủ '+sleep.toLocaleString('vi-VN')+' giờ; cân nhắc tăng thời gian nghỉ ngơi nếu đây là toàn bộ giấc ngủ trong ngày.');
-else if(sleep>9)notes.push('Thời gian ngủ trên 9 giờ; đối chiếu với nhu cầu nghỉ ngơi thực tế.');
-if(movement===0)notes.push('Chưa có khung thể thao; thử dành 30 phút vận động phù hợp.');
-if(study===0)notes.push('Chưa có thời gian đọc sách; có thể bắt đầu với 15–30 phút.');
-if(family===0)notes.push('Cân nhắc dành thời gian chất lượng cho gia đình.');
-return (complete?'ĐIỂM KỶ LUẬT THAM KHẢO: '+score+'/100':'ĐÁNH GIÁ TẠM TÍNH: '+score+'/100 ('+done+'/48 khung)')+'\n'+
-'Công việc: '+work+'h · Đọc sách: '+study+'h · Thể thao: '+movement+'h · Gia đình: '+family+'h · Ngủ: '+sleep+'h.\n\n'+notes.slice(0,3).join('\n')+
-'\n\nĐiểm được tính theo quy tắc minh bạch, không phải chẩn đoán sức khỏe hay nhận xét từ AI. Không khuyến khích cắt giảm giấc ngủ để tăng điểm.';
+if(m.sleep<7)notes.push('Ngủ '+m.sleep.toLocaleString('vi-VN')+' giờ; cân nhắc tăng thời gian nghỉ ngơi nếu đây là toàn bộ giấc ngủ trong ngày.');
+else if(m.sleep>9)notes.push('Thời gian ngủ trên 9 giờ; đối chiếu với nhu cầu nghỉ ngơi thực tế.');
+if(m.movement===0)notes.push('Chưa có khung thể thao; thử dành 30 phút vận động phù hợp.');
+if(m.study===0)notes.push('Chưa có thời gian đọc sách; có thể bắt đầu với 15–30 phút.');
+if(m.family===0)notes.push('Cân nhắc dành thời gian chất lượng cho gia đình.');
+return (done===48?'ĐIỂM KỶ LUẬT THAM KHẢO: ':'ĐÁNH GIÁ TẠM TÍNH: ')+m.score+'/100'+(done===48?'':' ('+done+'/48 khung)')+'\n'+
+'Công việc: '+m.work+'h · Đọc sách: '+m.study+'h · Thể thao: '+m.movement+'h · Gia đình: '+m.family+'h · Ngủ: '+m.sleep+'h.\n\n'+notes.slice(0,3).join('\n')+
+'\n\nĐiểm theo công thức tham khảo, không phải nhận xét từ AI hay chẩn đoán sức khỏe. Không khuyến khích cắt giảm giấc ngủ để tăng điểm.';
+}
+function updateCoach(v,done){
+const current=dailyMetrics(v),points=[];
+for(let i=1;i<=7;i++){
+const dt=new Date(day+'T12:00:00');dt.setDate(dt.getDate()-i);
+const prev=load(localDate(dt)).map(normalizeCategory);
+const m=dailyMetrics(prev);
+if(m.done===48)points.push(m);
+}
+$('coachResult').textContent=assessment(v,done);
+if(done<24){$('coachTrend').textContent='Chưa có đủ dữ liệu cho phần so sánh 7 ngày.';$('coachSaved').textContent='';return}
+if(points.length){
+const avg=(field)=>points.reduce((sum,m)=>sum+m[field],0)/points.length;
+const delta=current.score-avg('score'),wd=current.waste-avg('waste');
+$('coachTrend').textContent='SO SÁNH 7 NGÀY TRƯỚC ('+points.length+' ngày ghi đủ 48 khung)\nĐiểm kỷ luật: '+current.score+'/100 so với trung bình '+avg('score').toFixed(1)+'/100 ('+(delta>=0?'+':'')+delta.toFixed(1)+' điểm).\nLãng phí: '+current.waste.toLocaleString('vi-VN')+'h so với '+avg('waste').toFixed(1)+'h ('+(wd>0?'+':'')+wd.toFixed(1)+'h).';
+}else $('coachTrend').textContent='Chưa đủ dữ liệu 7 ngày trước (chỉ so sánh với những ngày đã ghi đủ 48 khung).';
+if(done===48){
+try{localStorage.setItem('nathan48-review-v1:'+day,JSON.stringify({source:v,score:current.score,report:$('coachResult').textContent,updatedAt:new Date().toISOString()}));$('coachSaved').textContent='✓ Đã lưu kết quả đánh giá ngày này trên trình duyệt.'}
+catch{$('coachSaved').textContent='Không lưu được kết quả đánh giá vào trình duyệt.'}
+}else $('coachSaved').textContent='Bản đánh giá tạm thời sẽ được lưu khi phân loại đủ 48 khung.';
 }
 async function geminiReview(){
 const key=$('geminiKey').value.trim(),status=$('geminiStatus'),out=$('geminiOutput');
@@ -178,7 +203,7 @@ const data=await response.json();
 if(!response.ok)throw Error(data.error?.message||'HTTP '+response.status);
 const answer=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').trim();
 if(!answer)throw Error('Gemini chưa trả nội dung; thử lại.');
-out.textContent=answer;status.textContent='✓ Phân tích bằng Gemini · Dữ liệu thống kê đã được gửi tới Google để xử lý.';
+out.textContent=answer;try{localStorage.setItem('nathan48-gemini-review-v1:'+day,JSON.stringify({source:v,text:answer}))}catch{}status.textContent='✓ Phân tích bằng Gemini · Đã lưu nhận xét trên thiết bị; số liệu đã gửi đến Google.';
 }catch(e){status.textContent='Không kết nối được Gemini: '+e.message+'. Bản đánh giá cơ bản vẫn hoạt động.'}
 finally{btn.disabled=false}
 }
