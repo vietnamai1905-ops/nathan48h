@@ -118,6 +118,14 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 
 <div class="datebar"><button class="ctrl" id="prev" aria-label="Ngày trước">‹</button><input class="ctrl" type="date" id="date" aria-label="Chọn ngày"><button class="ctrl" id="next" aria-label="Ngày sau">›</button><button class="ctrl gold" id="today">Hôm nay</button></div><section id="overviewBand" class="categories-band"><div id="categoriesOverview" class="categoriesOverview" aria-label="Thống kê hoạt động"></div></section><section id="diarySection" class="panel workspace"><div class="heading"><div><h2>Nhật ký 48 giờ</h2><p>Mỗi khung tương đương 30 phút thực tế</p></div><div class="buttons"><button class="ctrl gold" id="saveTop">▣ Lưu dữ liệu</button><button class="ctrl" id="statsTop">▥ Xem thống kê</button></div></div>
 <div class="tip"><span><span class="swatch"></span>Khung viền vàng là thời gian đang diễn ra</span><span>48 giờ Nathan = 24 giờ quốc tế</span></div>
+<div id="rangePanel" style="padding:13px;margin:12px 0;background:#0b332bbc;border:1px solid #91b9a56b;border-radius:13px">
+<div style="font-weight:750;margin-bottom:8px">☑ Gán hoạt động cho cả khoảng thời gian</div>
+<div class="mini" style="margin-bottom:10px">Đánh dấu 2 ô ở hai khung đầu và cuối bên dưới. Ví dụ tích 00:00–00:30 và 05:00–05:30 sẽ chọn toàn bộ 00:00–05:30.</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<select id="rangeCategory" class="ctrl" aria-label="Hoạt động cho cả khoảng" style="flex:1;min-width:135px"></select>
+<button id="applyRange" type="button" class="ctrl gold">✓ Áp dụng khoảng</button>
+<button id="clearRange" type="button" class="ctrl">Bỏ chọn</button>
+</div><div class="mini" id="rangeInfo" role="status" style="margin-top:9px">Chưa chọn khung nào.</div></div>
 <div class="tableHead"><div></div><div>GIỜ NATHAN</div><div>GIỜ QUỐC TẾ</div><div>HOẠT ĐỘNG</div></div><div id="timeline"></div>
 <div class="buttons"><button class="ctrl" id="summaryButton">◉ &nbsp; Xem tổng kết</button><button class="ctrl gold" id="save">✓ &nbsp; Lưu nhật ký</button></div><div role="status" class="status" id="status"></div>
 <div class="notice">Bản GitHub Pages hoạt động độc lập: dữ liệu được lưu trong trình duyệt hiện tại, không đồng bộ với website PythonAnywhere. Anh có thể xuất bản sao để tránh mất dữ liệu khi xóa dữ liệu trình duyệt.</div><div class="buttons"><button class="ctrl" id="export">↓ Xuất dữ liệu JSON</button><button class="ctrl" id="import">↑ Nhập dữ liệu JSON</button><input type="file" id="importFile" accept=".json,application/json" hidden></div>
@@ -128,24 +136,42 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 <div id="coachResult" style="white-space:pre-line;line-height:1.75"></div>
 <div id="coachTrend" style="white-space:pre-line;line-height:1.7;margin-top:12px;padding:12px;border-radius:10px;background:#0b2b23b8"></div>
 <p class="mini" id="coachSaved" style="margin:8px 0"></p>
-<div style="margin-top:14px;border-top:1px solid #ffffff33;padding-top:12px">
-<p class="mini" style="margin:0 0 8px">Tùy chọn: Gemini AI miễn phí (cần API key Google AI Studio). Key không được lưu. Đây là chế độ thử: yêu cầu gửi trực tiếp từ trình duyệt đến Google; chỉ dùng key có giới hạn API và hạn mức, không nhập key quan trọng. Để bảo mật tốt hơn cần proxy có xác thực.</p>
-<input id="geminiKey" type="password" autocomplete="off" placeholder="Dán Gemini API key (tùy chọn)" aria-label="Gemini API key" style="width:100%;padding:10px;margin-bottom:8px;background:#0c281f;color:white;border:1px solid #9bbca7;border-radius:9px">
-<button id="geminiReview" class="ctrl gold" type="button">✦ Nhờ Gemini nhận xét</button>
-<div id="geminiStatus" role="status" class="mini" style="margin-top:8px"></div>
-<div id="geminiOutput" style="white-space:pre-line;line-height:1.75;margin-top:8px"></div>
-</div></section></div></div>
+</section></div></div>
 <script>
 (()=>{'use strict';
 const cats=['Chưa chọn','Công việc','Đọc sách','Thể thao','Gia đình','Giải trí','Sinh hoạt','Lãng phí','Ngủ'], colors=['#526575','#4D8CCB','#48A868','#39AFA9','#D8B44A','#FF3B30','#D98A45','#8B1E1E','#806DB8'];const legacyCategory={'Học tập':'Đọc sách','Ăn uống':'Sinh hoạt','Khác':'Sinh hoạt'};const normalizeCategory=c=>cats.includes(c)?c:(legacyCategory[c]||cats[0]);const $=id=>document.getElementById(id),pad=v=>String(v).padStart(2,'0'),localDate=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),key=d=>'nathan48-demo-v2:'+d;let day=localDate(new Date()),unsaved=false;
 function load(d){try{const obj=JSON.parse(localStorage.getItem(key(d))||'[]');return Array.isArray(obj)?obj:[]}catch{return []}}
 function values(){return Array.from(document.querySelectorAll('#timeline select'),el=>el.value)}
 function stats(){const v=values(),done=v.filter(x=>x!=='Chưa chọn').length;if($('statDone'))$('statDone').textContent=done+'/48';if($('statTime'))$('statTime').textContent=(done/2).toLocaleString('vi-VN')+'h';return {v,done}}
-function render(){unsaved=false;$('status').textContent='';$('date').value=day;const saved=load(day),frag=document.createDocumentFragment(),now=new Date(),current=localDate(now)===day?now.getHours()*2+Math.floor(now.getMinutes()/30):-1;for(let i=0;i<48;i++){const r=document.createElement('div');r.className='entry'+(i===current?' now':'');const bar=document.createElement('div');bar.className='bar';const hour=document.createElement('div');hour.className='nh';hour.textContent=pad(i)+':00';const international=document.createElement('div');international.className='qt';const a=i*30,b=a+30;international.textContent=pad(Math.floor(a/60))+':'+pad(a%60)+' – '+pad(Math.floor(b/60)%24)+':'+pad(b%60);const select=document.createElement('select');select.className='category';select.setAttribute('aria-label','Hoạt động giờ Nathan '+i);cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;select.append(o)});select.value=normalizeCategory(saved[i]);const recolor=()=>bar.style.background=colors[cats.indexOf(select.value)];select.addEventListener('change',()=>{recolor();unsaved=true;$('status').textContent='Có thay đổi chưa lưu';stats()});recolor();r.append(bar,hour,international,select);frag.append(r)}$('timeline').replaceChildren(frag);stats()}
+function render(){unsaved=false;$('status').textContent='';$('date').value=day;const saved=load(day),frag=document.createDocumentFragment(),now=new Date(),current=localDate(now)===day?now.getHours()*2+Math.floor(now.getMinutes()/30):-1;for(let i=0;i<48;i++){const r=document.createElement('div');r.className='entry'+(i===current?' now':'');const bar=document.createElement('div');bar.className='bar';const hour=document.createElement('div');hour.className='nh';const mark=document.createElement('input');mark.type='checkbox';mark.className='rangeMark';mark.dataset.index=String(i);mark.setAttribute('aria-label','Chọn mốc '+pad(Math.floor(i/2))+':'+(i%2?'30':'00'));mark.style.cssText='width:17px;height:17px;vertical-align:middle;margin:0 7px 0 0;accent-color:#f5ca7c';mark.addEventListener('change',onRangeMark);hour.append(mark,document.createTextNode(pad(i)+':00'));const international=document.createElement('div');international.className='qt';const a=i*30,b=a+30;international.textContent=pad(Math.floor(a/60))+':'+pad(a%60)+' – '+pad(Math.floor(b/60)%24)+':'+pad(b%60);const select=document.createElement('select');select.className='category';select.setAttribute('aria-label','Hoạt động giờ Nathan '+i);cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;select.append(o)});select.value=normalizeCategory(saved[i]);const recolor=()=>bar.style.background=colors[cats.indexOf(select.value)];select.addEventListener('change',()=>{recolor();unsaved=true;$('status').textContent='Có thay đổi chưa lưu';stats()});recolor();r.append(bar,hour,international,select);frag.append(r)}$('timeline').replaceChildren(frag);rangePoints=[];refreshRange();stats()}
+let rangePoints=[];
+function frameTime(i){const minutes=i*30;return pad(Math.floor(minutes/60))+':'+pad(minutes%60)}
+function refreshRange(){
+const marks=[...document.querySelectorAll('.rangeMark')];marks.forEach(m=>{m.checked=rangePoints.includes(Number(m.dataset.index));m.closest('.entry').style.outline=rangePoints.includes(Number(m.dataset.index))?'2px solid #e8bb65':''});
+if(!rangePoints.length){$('rangeInfo').textContent='Chưa chọn khung nào.';return}
+if(rangePoints.length===1){$('rangeInfo').textContent='Đã chọn mốc '+frameTime(rangePoints[0])+'. Chọn thêm khung cuối.';return}
+const lo=Math.min(...rangePoints),hi=Math.max(...rangePoints);
+$('rangeInfo').textContent='Đã chọn '+frameTime(lo)+'–'+frameTime(hi+1)+' ('+(hi-lo+1)+' khung, '+((hi-lo+1)/2).toLocaleString('vi-VN')+' giờ quốc tế).';
+}
+function onRangeMark(e){
+const i=Number(e.target.dataset.index);
+if(e.target.checked){if(rangePoints.length>=2)rangePoints=[];rangePoints.push(i)}
+else rangePoints=rangePoints.filter(x=>x!==i);
+refreshRange();
+}
+function applyRange(){
+if(rangePoints.length!==2){$('rangeInfo').textContent='Hãy đánh dấu đúng 2 mốc đầu và cuối trước khi áp dụng.';return}
+const chosen=$('rangeCategory').value,lo=Math.min(...rangePoints),hi=Math.max(...rangePoints);
+const selections=[...document.querySelectorAll('#timeline select.category')];
+for(let i=lo;i<=hi;i++){selections[i].value=chosen;selections[i].dispatchEvent(new Event('change',{bubbles:true}))}
+rangePoints=[];refreshRange();$('rangeInfo').textContent='✓ Đã gán '+chosen+' cho '+frameTime(lo)+'–'+frameTime(hi+1)+' ('+(hi-lo+1)+' khung). Nhấn Lưu nhật ký để lưu dữ liệu.';
+}
+$('rangeCategory').replaceChildren(...cats.slice(1).map(c=>{const opt=document.createElement('option');opt.value=c;opt.textContent=c;return opt}));
+$('applyRange').onclick=applyRange;$('clearRange').onclick=()=>{rangePoints=[];refreshRange()};
 function save(){try{localStorage.setItem(key(day),JSON.stringify(values()));unsaved=false;$('status').textContent='✓ Đã lưu ngày '+day+' trên thiết bị này.'}catch{$('status').textContent='Không lưu được: bộ nhớ trình duyệt không khả dụng.'}}
 function switchDay(d){if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||Number.isNaN(new Date(d+'T12:00:00').getTime()))return;if(unsaved)save();day=d;render()}
 function shift(n){const d=new Date(day+'T12:00:00');d.setDate(d.getDate()+n);switchDay(localDate(d))}
-function summary(){const {v,done}=stats(),box=$('sumrows');box.replaceChildren();const counts=cats.map((cat,i)=>({cat,n:v.filter(x=>x===cat).length,color:colors[i]})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);const colorsString=counts.reduce((acc,x)=>{const from=acc.total,to=from+x.n/48*100;acc.fragments.push(x.color+' '+from+'% '+to+'%');acc.total=to;return acc},{total:0,fragments:[]});$('donut').style.background='conic-gradient('+colorsString.fragments.join(',')+')';$('donut').dataset.label=Math.round(done/48*100)+'%';$('progressText').textContent='Đã phân loại '+done+' trên 48 giờ Nathan';$('progressFill').style.width=(done/48*100)+'%';counts.forEach(x=>{const el=document.createElement('div');el.className='sumrow';const name=document.createElement('div');name.className='sumname';const dot=document.createElement('span');dot.className='dot';dot.style.background=x.color;const span=document.createElement('span');span.textContent=x.cat;name.append(dot,span);const nh=document.createElement('b');nh.textContent=x.n+' giờ';const qt=document.createElement('b');qt.textContent=(x.n/2).toLocaleString('vi-VN')+' giờ';el.append(name,nh,qt);box.append(el)});$('sumDate').textContent='Ngày '+day.split('-').reverse().join('/');updateCoach(v,done);let prior=null;try{prior=JSON.parse(localStorage.getItem('nathan48-gemini-review-v1:'+day)||'null')}catch{}$('geminiOutput').textContent=prior&&JSON.stringify(prior.source)===JSON.stringify(v)?prior.text:'';$('geminiStatus').textContent=$('geminiOutput').textContent?'Đã tải nhận xét Gemini đã lưu cho dữ liệu ngày này.':'';$('modal').classList.add('open')}
+function summary(){const {v,done}=stats(),box=$('sumrows');box.replaceChildren();const counts=cats.map((cat,i)=>({cat,n:v.filter(x=>x===cat).length,color:colors[i]})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);const colorsString=counts.reduce((acc,x)=>{const from=acc.total,to=from+x.n/48*100;acc.fragments.push(x.color+' '+from+'% '+to+'%');acc.total=to;return acc},{total:0,fragments:[]});$('donut').style.background='conic-gradient('+colorsString.fragments.join(',')+')';$('donut').dataset.label=Math.round(done/48*100)+'%';$('progressText').textContent='Đã phân loại '+done+' trên 48 giờ Nathan';$('progressFill').style.width=(done/48*100)+'%';counts.forEach(x=>{const el=document.createElement('div');el.className='sumrow';const name=document.createElement('div');name.className='sumname';const dot=document.createElement('span');dot.className='dot';dot.style.background=x.color;const span=document.createElement('span');span.textContent=x.cat;name.append(dot,span);const nh=document.createElement('b');nh.textContent=x.n+' giờ';const qt=document.createElement('b');qt.textContent=(x.n/2).toLocaleString('vi-VN')+' giờ';el.append(name,nh,qt);box.append(el)});$('sumDate').textContent='Ngày '+day.split('-').reverse().join('/');updateCoach(v,done);$('modal').classList.add('open')}
 function dailyMetrics(v){
 const count=c=>v.filter(x=>x===c).length;const hours=c=>count(c)/2;
 const done=v.filter(x=>x!=='Chưa chọn').length;
@@ -189,28 +215,10 @@ try{localStorage.setItem('nathan48-review-v1:'+day,JSON.stringify({source:v,scor
 catch{$('coachSaved').textContent='Không lưu được kết quả đánh giá vào trình duyệt.'}
 }else $('coachSaved').textContent='Bản đánh giá tạm thời sẽ được lưu khi phân loại đủ 48 khung.';
 }
-async function geminiReview(){
-const key=$('geminiKey').value.trim(),status=$('geminiStatus'),out=$('geminiOutput');
-if(!key){status.textContent='Hãy nhập Gemini API key của anh để thử AI thật.';return}
-const v=values(),done=v.filter(x=>x!=='Chưa chọn').length;
-if(done<24){status.textContent='Cần phân loại ít nhất 24/48 khung để AI có dữ liệu tương đối đầy đủ.';return}
-const btn=$('geminiReview');btn.disabled=true;status.textContent='Gemini đang phân tích…';out.textContent='';
-const totals=Object.fromEntries(cats.slice(1).map(c=>[c,v.filter(x=>x===c).length/2]));
-const prompt='Bạn là trợ lý phản tư quản lý thời gian. Dựa CHỈ vào số liệu sau, viết tiếng Việt tối đa 180 từ, giọng thẳng thắn và tôn trọng, nhận xét cân bằng về công việc, đọc sách, thể thao, gia đình, giải trí, sinh hoạt, lãng phí và ngủ; nêu 2 điểm tốt, 2 điều nên sửa và 3 bước cụ thể cho ngày mai. Không coi làm việc liên tục là tốt, không xem thời gian ngủ/sinh hoạt thiết yếu là lãng phí. Không suy đoán bệnh lý. Nếu dữ liệu chưa đầy đủ, nói rõ. Ngày '+day+', đã phân loại '+done+'/48 giờ Nathan, mỗi giờ Nathan bằng 0.5 giờ quốc tế. Số giờ quốc tế theo nhóm: '+JSON.stringify(totals)+'.';
-try{
-const response=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.35,maxOutputTokens:650}})});
-const data=await response.json();
-if(!response.ok)throw Error(data.error?.message||'HTTP '+response.status);
-const answer=(data.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').trim();
-if(!answer)throw Error('Gemini chưa trả nội dung; thử lại.');
-out.textContent=answer;try{localStorage.setItem('nathan48-gemini-review-v1:'+day,JSON.stringify({source:v,text:answer}))}catch{}status.textContent='✓ Phân tích bằng Gemini · Đã lưu nhận xét trên thiết bị; số liệu đã gửi đến Google.';
-}catch(e){status.textContent='Không kết nối được Gemini: '+e.message+'. Bản đánh giá cơ bản vẫn hoạt động.'}
-finally{btn.disabled=false}
-}
 function tick(){const d=new Date(),n=d.getHours()*7200+d.getMinutes()*120+d.getSeconds()*2,h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;$('clock').textContent=pad(h)+':'+pad(m)+':'+pad(s);$('normal').textContent='Giờ quốc tế: '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());if($('statNow'))$('statNow').textContent=pad(d.getHours()*2+Math.floor(d.getMinutes()/30));}
 function exportData(){if(unsaved)save();let data={format:'nathan48-demo-v2',exportedAt:new Date().toISOString(),days:{}};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('nathan48-demo-v2:'))data.days[k.slice(17)]=load(k.slice(17))}const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Nathan48-sao-luu-'+localDate(new Date())+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 function importData(file){if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const obj=JSON.parse(rd.result);if(obj.format!=='nathan48-demo-v2'||!obj.days||typeof obj.days!=='object')throw new Error('Sai định dạng');let count=0;for(const [d,v] of Object.entries(obj.days)){if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Array.isArray(v)||v.length>48||v.some(c=>typeof c!=='string'))continue;localStorage.setItem(key(d),JSON.stringify(v.map(normalizeCategory)));count++}render();$('status').textContent='✓ Đã nhập '+count+' ngày.'}catch{$('status').textContent='Không thể nhập: file không hợp lệ hoặc bộ nhớ đầy.'}};rd.readAsText(file)}
-$('geminiReview').onclick=geminiReview;$('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);$('today').onclick=()=>switchDay(localDate(new Date()));$('date').addEventListener('change',e=>switchDay(e.target.value));$('save').onclick=save;$('summaryButton').onclick=summary;$('close').onclick=()=>$('modal').classList.remove('open');$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('open')};document.addEventListener('keydown',e=>{if(e.key==='Escape')$('modal').classList.remove('open')});$('export').onclick=exportData;$('import').onclick=()=>$('importFile').click();$('importFile').addEventListener('change',e=>{importData(e.target.files[0]);e.target.value=''});render();tick();setInterval(tick,500);
+$('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);$('today').onclick=()=>switchDay(localDate(new Date()));$('date').addEventListener('change',e=>switchDay(e.target.value));$('save').onclick=save;$('summaryButton').onclick=summary;$('close').onclick=()=>$('modal').classList.remove('open');$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('open')};document.addEventListener('keydown',e=>{if(e.key==='Escape')$('modal').classList.remove('open')});$('export').onclick=exportData;$('import').onclick=()=>$('importFile').click();$('importFile').addEventListener('change',e=>{importData(e.target.files[0]);e.target.value=''});render();tick();setInterval(tick,500);
 })();
 
 const overviewCats=[['Công việc','💼','#4D8CCB'],['Đọc sách','📖','#48A868'],['Thể thao','🏃','#39AFA9'],['Gia đình','👪','#D8B44A'],['Giải trí','🎮','#FF3B30'],['Sinh hoạt','🏠','#D98A45'],['Lãng phí','⌛','#8B1E1E'],['Ngủ','🌙','#806DB8']];
