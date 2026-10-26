@@ -139,7 +139,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid 
 </section></div></div>
 <script>
 (()=>{'use strict';
-const cats=['Chưa chọn','Công việc','Đọc sách','Thể thao','Gia đình','Giải trí','Sinh hoạt','Lãng phí','Ngủ'], colors=['#526575','#4D8CCB','#48A868','#39AFA9','#D8B44A','#FF3B30','#D98A45','#8B1E1E','#806DB8'];const legacyCategory={'Học tập':'Đọc sách','Ăn uống':'Sinh hoạt','Khác':'Sinh hoạt'};const normalizeCategory=c=>cats.includes(c)?c:(legacyCategory[c]||cats[0]);const $=id=>document.getElementById(id),pad=v=>String(v).padStart(2,'0'),localDate=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),key=d=>'nathan48-demo-v2:'+d;let day=localDate(new Date()),unsaved=false;
+const cats=['Chưa chọn','Công việc','Đọc sách','Thể thao','Gia đình','Giải trí','Sinh hoạt','Học tập','Ngủ'], colors=['#526575','#4D8CCB','#48A868','#39AFA9','#D8B44A','#FF3B30','#D98A45','#8B1E1E','#806DB8'];const legacyCategory={'Lãng phí':'Học tập','Ăn uống':'Sinh hoạt','Khác':'Sinh hoạt'};const normalizeCategory=c=>cats.includes(c)?c:(legacyCategory[c]||cats[0]);const $=id=>document.getElementById(id),pad=v=>String(v).padStart(2,'0'),localDate=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),key=d=>'nathan48-demo-v2:'+d;let day=localDate(new Date()),unsaved=false;
 function load(d){try{const obj=JSON.parse(localStorage.getItem(key(d))||'[]');return Array.isArray(obj)?obj:[]}catch{return []}}
 function values(){return Array.from(document.querySelectorAll('#timeline select'),el=>el.value)}
 function stats(){const v=values(),done=v.filter(x=>x!=='Chưa chọn').length;if($('statDone'))$('statDone').textContent=done+'/48';if($('statTime'))$('statTime').textContent=(done/2).toLocaleString('vi-VN')+'h';return {v,done}}
@@ -175,17 +175,17 @@ function summary(){const {v,done}=stats(),box=$('sumrows');box.replaceChildren()
 function dailyMetrics(v){
 const count=c=>v.filter(x=>x===c).length;const hours=c=>count(c)/2;
 const done=v.filter(x=>x!=='Chưa chọn').length;
-const waste=hours('Lãng phí'),sleep=hours('Ngủ'),movement=hours('Thể thao'),study=hours('Đọc sách'),family=hours('Gia đình');
-let score=65+Math.min(12,study*3)+Math.min(10,movement*5)+Math.min(8,family*1.5)-Math.min(35,waste*10);
+const learning=hours('Học tập'),sleep=hours('Ngủ'),movement=hours('Thể thao'),study=hours('Đọc sách'),family=hours('Gia đình');
+let score=65+Math.min(12,study*3)+Math.min(10,movement*5)+Math.min(8,family*1.5)+Math.min(10,learning*2);
 if(sleep>=7&&sleep<=9)score+=8;else if(sleep<6||sleep>10)score-=8;
-return {done,score:Math.max(0,Math.min(100,Math.round(score))),waste,sleep,movement,study,family,work:hours('Công việc')};
+return {done,score:Math.max(0,Math.min(100,Math.round(score))),learning,sleep,movement,study,family,work:hours('Công việc')};
 }
 function assessment(v,done){
 const m=dailyMetrics(v);
 if(done<24)return 'Đã ghi '+done+'/48 khung giờ. Hãy bổ sung nhật ký trước khi đánh giá để tránh kết luận sai từ dữ liệu thiếu.';
 const notes=[];
-if(m.waste>1)notes.push('Thời gian lãng phí '+m.waste.toLocaleString('vi-VN')+' giờ quốc tế; hãy thử giảm 30 phút vào ngày mai.');
-else notes.push('Anh kiểm soát thời gian lãng phí tương đối tốt.');
+if(m.learning>0)notes.push('Anh đã dành '+m.learning.toLocaleString('vi-VN')+' giờ quốc tế cho học tập.');
+else notes.push('Chưa có thời gian học tập; có thể dành 30 phút để học kỹ năng mới.');
 if(m.sleep<7)notes.push('Ngủ '+m.sleep.toLocaleString('vi-VN')+' giờ; cân nhắc tăng thời gian nghỉ ngơi nếu đây là toàn bộ giấc ngủ trong ngày.');
 else if(m.sleep>9)notes.push('Thời gian ngủ trên 9 giờ; đối chiếu với nhu cầu nghỉ ngơi thực tế.');
 if(m.movement===0)notes.push('Chưa có khung thể thao; thử dành 30 phút vận động phù hợp.');
@@ -207,7 +207,7 @@ $('coachResult').textContent=assessment(v,done);
 if(done<24){$('coachTrend').textContent='Chưa có đủ dữ liệu cho phần so sánh 7 ngày.';$('coachSaved').textContent='';return}
 if(points.length){
 const avg=(field)=>points.reduce((sum,m)=>sum+m[field],0)/points.length;
-const delta=current.score-avg('score'),wd=current.waste-avg('waste');
+const delta=current.score-avg('score'),ld=current.learning-avg('learning');
 $('coachTrend').textContent='SO SÁNH 7 NGÀY TRƯỚC ('+points.length+' ngày ghi đủ 48 khung)\nĐiểm kỷ luật: '+current.score+'/100 so với trung bình '+avg('score').toFixed(1)+'/100 ('+(delta>=0?'+':'')+delta.toFixed(1)+' điểm).\nLãng phí: '+current.waste.toLocaleString('vi-VN')+'h so với '+avg('waste').toFixed(1)+'h ('+(wd>0?'+':'')+wd.toFixed(1)+'h).';
 }else $('coachTrend').textContent='Chưa đủ dữ liệu 7 ngày trước (chỉ so sánh với những ngày đã ghi đủ 48 khung).';
 if(done===48){
@@ -221,7 +221,7 @@ function importData(file){if(!file)return;const rd=new FileReader();rd.onload=()
 $('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);$('today').onclick=()=>switchDay(localDate(new Date()));$('date').addEventListener('change',e=>switchDay(e.target.value));$('save').onclick=save;$('summaryButton').onclick=summary;$('close').onclick=()=>$('modal').classList.remove('open');$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('open')};document.addEventListener('keydown',e=>{if(e.key==='Escape')$('modal').classList.remove('open')});$('export').onclick=exportData;$('import').onclick=()=>$('importFile').click();$('importFile').addEventListener('change',e=>{importData(e.target.files[0]);e.target.value=''});render();tick();setInterval(tick,500);
 })();
 
-const overviewCats=[['Công việc','💼','#4D8CCB'],['Đọc sách','📖','#48A868'],['Thể thao','🏃','#39AFA9'],['Gia đình','👪','#D8B44A'],['Giải trí','🎮','#FF3B30'],['Sinh hoạt','🏠','#D98A45'],['Lãng phí','⌛','#8B1E1E'],['Ngủ','🌙','#806DB8']];
+const overviewCats=[['Công việc','💼','#4D8CCB'],['Đọc sách','📖','#48A868'],['Thể thao','🏃','#39AFA9'],['Gia đình','👪','#D8B44A'],['Giải trí','🎮','#FF3B30'],['Sinh hoạt','🏠','#D98A45'],['Học tập','📚','#8B1E1E'],['Ngủ','🌙','#806DB8']];
 function updateOverview(){const els=[...document.querySelectorAll('#timeline select')];const o=document.getElementById('categoriesOverview');o.replaceChildren();for(const [name,emoji,color] of overviewCats){const n=els.filter(s=>s.value===name).length;const card=document.createElement('div');card.className='catCard';card.style.setProperty('--accent',color);card.innerHTML='<span class="emoji"></span><span class="name"></span><span class="amount"></span><span class="portion"></span><div class="miniBar"><i></i></div>';card.querySelector('.emoji').textContent=emoji;card.querySelector('.name').textContent=name;card.querySelector('.amount').textContent=(n/2).toLocaleString('vi-VN')+' giờ';card.querySelector('.portion').textContent=(n/48*100).toFixed(0)+'%';card.querySelector('i').style.width=(n/48*100)+'%';o.append(card)}}
 const target=document.getElementById('timeline');const watch=new MutationObserver(()=>updateOverview());watch.observe(target,{childList:true,subtree:true,attributes:true,attributeFilter:['value']});target.addEventListener('change',updateOverview);updateOverview();
 document.getElementById('saveTop').onclick=()=>document.getElementById('save').click();document.getElementById('statsTop').onclick=()=>document.getElementById('summaryButton').click();document.getElementById('navHome').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});document.getElementById('navDiary').onclick=()=>document.getElementById('diarySection').scrollIntoView({behavior:'smooth'});document.getElementById('navStats').onclick=()=>document.getElementById('summaryButton').click();document.getElementById('navData').onclick=()=>document.getElementById('export').scrollIntoView({behavior:'smooth'});
