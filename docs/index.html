@@ -111,6 +111,9 @@ body{background:#0b231e;color:#f6f6ed;font-family:system-ui,-apple-system,"Segoe
 button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #f7d68e;outline-offset:2px}
 @media(max-width:680px){.shell{padding:9px 9px 62px}.brand{border-radius:16px!important}.hero{min-height:214px!important;padding:16px 8px 20px!important;border-radius:20px!important}.hero .clock{font-size:clamp(40px,10vw,62px)!important}.workspace{padding:15px 10px!important}.categoriesOverview{gap:7px!important}.catCard{padding:11px 4px!important}.catCard .name{font-size:11px!important}.catCard .amount{font-size:12px!important}.entry{min-height:50px}.mainnav button{font-size:11px!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important;animation:none!important}}
+</style><style id="nathan-scroll-timeline">
+#timeline{max-height: min(52vh, 520px);max-height:min(52dvh,520px);overflow-y:auto;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#81bcb8 transparent;}
+@media(max-width:750px){#diarySection{scroll-margin-top:env(safe-area-inset-top,0px)}#timeline{max-height:42vh;max-height:42dvh}#rangePanel>.mini:first-of-type{font-size:11px}#rangePanel{margin:8px 0!important;padding:9px!important}}
 </style></head><body>
 <div class="wallpaper" aria-hidden="true"></div><div class="shade"></div>
 <main class="shell"><header class="brand"><div class="brandmark"><div class="emblem">◷</div><div><div class="brandname">GIỜ NATHAN</div><div class="brandnote">Quản lý 48 giờ mỗi ngày · Sống chủ động hơn</div></div></div><nav class="mainnav" aria-label="Điều hướng"><button class="active" id="navHome">⌂ Hôm nay</button><button id="navDiary">▤ Nhật ký</button><button id="navStats">▥ Thống kê</button><button id="navData">⇩ Xuất/nhập</button></nav></header>
