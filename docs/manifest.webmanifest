@@ -8,6 +8,12 @@
   "theme_color": "#00352e",
   "icons": [
     {
+      "src": "./nathan48-icon.png?v=2",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "./nathan48-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
