@@ -1,0 +1,17 @@
+{
+  "name": "Nathan 48 | Sống trọn từng khắc",
+  "short_name": "Nathan 48",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#00352e",
+  "theme_color": "#00352e",
+  "icons": [
+    {
+      "src": "./nathan48-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
