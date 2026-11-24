@@ -235,7 +235,7 @@ function streakMetrics(){
  return {current,best,total:days.size,lastDate:current ? new Date((days.has(today)?today:today-1)*86400000).toISOString().slice(0,10) : localDate(new Date())};
 }
 function updateStreak(){const {current,best,total}=streakMetrics();const ranks=[[365,'👑','Bậc thầy thời gian'],[100,'🥇','Làm chủ thời gian'],[60,'🥈','Kiên định'],[30,'🥉','Bền bỉ'],[7,'🔥','Kỷ luật'],[1,'🔥','Khởi đầu'],[0,'🔥','Bắt đầu hành trình']];const [,icon,rank]=ranks.find(r=>current>=r[0]);$('streakIcon').textContent=icon;$('streakLabel').textContent=current+' ngày liên tiếp';$('streakCurrent').textContent=current;$('streakBest').textContent=best;$('streakTotal').textContent=total;$('streakRank').textContent=icon+' '+rank;}
-$('widgetSync').onclick=()=>{const {current,lastDate}=streakMetrics();window.location.href='scriptable:///Nathan48?streak='+encodeURIComponent(current)+'&lastDate='+encodeURIComponent(lastDate)};
+$('widgetSync').onclick=()=>{const {current,lastDate}=streakMetrics();window.location.href='scriptable:///run/Nathan48?streak='+encodeURIComponent(current)+'&lastDate='+encodeURIComponent(lastDate)};
 $('streakBadge').onclick=()=>{updateStreak();$('streakModal').classList.add('open')};$('streakClose').onclick=()=>{$('streakModal').classList.remove('open');$('streakBadge').focus()};$('streakModal').onclick=e=>{if(e.target===$('streakModal'))$('streakClose').click()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('streakModal').classList.contains('open'))$('streakClose').click()});window.addEventListener('storage',updateStreak);document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateStreak()});setInterval(updateStreak,60000);updateStreak();
 
 })();
